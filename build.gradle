@@ -1,19 +1,58 @@
-plugins {
-    id 'java'
-}
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'net.serenity-bdd.aggregator'
 
-group 'org.example'
 version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+group 'co.com.evalart.certification'
+
 
 repositories {
     mavenCentral()
 }
+buildscript {
+    repositories {
+        maven { url "https://plugins.gradle.org/m2/"}
+        mavenCentral()
+    }
+    ext{
+        serenityVersion = "2.3.13"
+        serenityGradleVersion="2.3.13"
+        serenityCucumberVersion = "2.2.6"
+    }
+    dependencies {
+        classpath("net.serenity-bdd:serenity-gradle-plugin:$rootProject.ext.serenityGradleVersion")
+    }
+}
+
+configurations.all {
+    resolutionStrategy{
+        force "io.cucumber:cucumber-core:5.0.0"
+    }
+}
+
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+    implementation group:'org.slf4j', name:'slf4j-simple',version: '2.0.0-alpha1'
+    implementation group:'org.hamcrest', name:'hamcrest',version: '2.2'
+
+    implementation"net.serenity-bdd:serenity-core:$rootProject.ext.serenityVersion",
+            "net.serenity-bdd:serenity-junit:$rootProject.ext.serenityVersion",
+            "net.serenity-bdd:serenity-screenplay:$rootProject.ext.serenityVersion",
+            "net.serenity-bdd:serenity-screenplay-webdriver:$rootProject.ext.serenityVersion",
+            "net.serenity-bdd:serenity-screenplay-rest:$rootProject.ext.serenityVersion",
+            "org.assertj:assertj-core:3.19.0"
+
+
+
+
+    testImplementation "net.serenity-bdd:serenity-cucumber5:$rootProject.ext.serenityCucumberVersion",
+            "junit:junit:4.12"
 }
 
-test {
-    useJUnitPlatform()
-}
+test.finalizedBy(aggregate)
+
+gradle.startParameter.continueOnFailure = true
